@@ -36,7 +36,7 @@ document.querySelector('.check').addEventListener('click', function () {
 
     document.querySelector('body').style.backgroundColor = '#60b347';
     document.querySelector('.number').style.width = '30rem';
-
+    document.querySelector('.number').style. = '30rem';
     if (score > highscore) {
       highscore = score;
       document.querySelector('.highscore').textContent = highscore;
