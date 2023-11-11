@@ -1,3 +1,13 @@
+let formbtn = document.querySelector(".submit-btn");
+let options = document.querySelector("#dropdown");
+
+formbtn.addEventListener("click", function (e) {
+  e.preventDefault();
+  console.log(options.value);
+});
+
+// * form end
+
 // * execise # 1
 let country = "india";
 let continent = "asia-aa";

@@ -81,20 +81,45 @@ const inputClosePin = document.querySelector('.form__input--pin');
 /////////////////////////////////////////////////
 // Functions
 
-const displayMovements = function (movements, sort = false) {
+// * display date
+const formatMovementDate = function (date, locale) {
+  const calcDaysPassed = (date1, date2) =>
+    Math.round(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
+
+  const daysPassed = calcDaysPassed(new Date(), date);
+  console.log(daysPassed);
+
+  if (daysPassed === 0) return 'Today';
+  if (daysPassed === 1) return 'Yesterday';
+  if (daysPassed <= 7) return `${daysPassed} days ago`;
+  else {
+    const day = `${date.getDate()}`.padStart(2, 0);
+    const month = `${date.getMonth() + 1}`.padStart(2, 0);
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+
+  // return new Intl.DateTimeFormat(locale).format(date);
+};
+
+const displayMovements = function (acc, sort = false) {
   containerMovements.innerHTML = '';
 
-  const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
+  const movs = sort
+    ? acc.movements.slice().sort((a, b) => a - b)
+    : acc.movements;
 
   movs.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
-
+    let date = new Date(acc.movementsDates[i]);
+    let displayDate = formatMovementDate(date);
     const html = `
       <div class="movements__row">
         <div class="movements__type movements__type--${type}">${
       i + 1
     } ${type}</div>
-        <div class="movements__value">${mov}€</div>
+        <div class="movements__date">${displayDate}</div>
+        <div class="movements__value">${mov.toFixed(2)}€</div>
       </div>
     `;
 
@@ -142,7 +167,7 @@ createUsernames(accounts);
 
 const updateUI = function (acc) {
   // Display movements
-  displayMovements(acc.movements);
+  displayMovements(acc);
 
   // Display balance
   calcDisplayBalance(acc);
@@ -151,9 +176,43 @@ const updateUI = function (acc) {
   calcDisplaySummary(acc);
 };
 
+let setTimeoutFunc = function () {
+  // * set time 5 minutes
+  let time = 60;
+
+  // * function
+  let tick = () => {
+    // * min seconds
+    let min = Math.trunc(time / 60)
+      .toString(10)
+      .padStart(2, 0);
+    let sec = (time % 60).toString(10).padStart(2, 0);
+
+    // * in each call print the remaining to ui
+    labelTimer.textContent = `${min}:${sec}`;
+
+    // * when o seconds ,and stop timer logout user
+    if (time === 0) {
+      clearInterval(timer);
+      containerApp.style.opacity = 0;
+      // Display UI and message
+      labelWelcome.textContent = `Log in to get started`;
+    }
+
+    // * reduce time
+    time--;
+  };
+
+  // * call the timer every seconds
+  tick();
+  let timer = setInterval(tick, 1000);
+
+  return timer;
+};
+
 ///////////////////////////////////////
 // Event handlers
-let currentAccount;
+let currentAccount, timer;
 
 btnLogin.addEventListener('click', function (e) {
   // Prevent form from submitting
@@ -175,6 +234,9 @@ btnLogin.addEventListener('click', function (e) {
     inputLoginUsername.value = inputLoginPin.value = '';
     inputLoginPin.blur();
 
+    // * clear the timeout
+    if (timer) clearInterval(timer);
+    timer = setTimeoutFunc();
     // Update UI
     updateUI(currentAccount);
   }
@@ -198,6 +260,10 @@ btnTransfer.addEventListener('click', function (e) {
     currentAccount.movements.push(-amount);
     receiverAcc.movements.push(amount);
 
+    // * adding date
+    currentAccount.movementsDates.push(new Date().toISOString());
+    receiverAcc.movementsDates.push(new Date().toISOString());
+
     // Update UI
     updateUI(currentAccount);
   }
@@ -209,11 +275,16 @@ btnLoan.addEventListener('click', function (e) {
   const amount = Number(inputLoanAmount.value);
 
   if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
-    // Add movement
-    currentAccount.movements.push(amount);
+    setTimeout(function () {
+      // Add movement
+      currentAccount.movements.push(amount);
 
-    // Update UI
-    updateUI(currentAccount);
+      // * adding date
+      currentAccount.movementsDates.push(new Date().toISOString());
+
+      // Update UI
+      updateUI(currentAccount);
+    }, 2500);
   }
   inputLoanAmount.value = '';
 });
@@ -244,10 +315,74 @@ btnClose.addEventListener('click', function (e) {
 let sorted = false;
 btnSort.addEventListener('click', function (e) {
   e.preventDefault();
-  displayMovements(currentAccount.movements, !sorted);
+  displayMovements(currentAccount, !sorted);
   sorted = !sorted;
 });
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES
+// * parsing
+console.log(Number.parseFloat('50.5px')); //* get num value only from measurements
+console.log(Number.parseInt('50.5'));
+console.log(Number.isFinite(50.5)); //* check the value is num or not
+
+let ex = 25.0;
+ex.toFixed(4);
+console.log(ex);
+console.log('d');
+
+// * date showing
+// currentAccount = account1;
+// updateUI(currentAccount);
+// containerApp.style.opacity = 100;
+
+let currentDate = new Date();
+let date = currentDate.getDate().toString(10).padStart(2, 0);
+let month = currentDate.getMonth().toString(10).padStart(2, 0);
+let year = currentDate.getFullYear();
+let minutes = currentDate.getMinutes().toString(10).padStart(2, 0);
+let hour = currentDate.getHours().toString(10).padStart(2, 0);
+
+labelDate.textContent = `${date}/${month}/${year}, ${hour}:${minutes}`;
+
+let now = Date.now();
+console.log(now);
+let firstDate = new Date(now);
+console.log(firstDate);
+
+let future = new Date(2037, 10, 19, 15, 23);
+
+let daysPassed = (date1, date2) =>
+  Math.trunc(Math.abs(date2 - date1)) / (1000 * 60 * 60 * 24);
+
+let days1 = daysPassed(new Date(), new Date(account1.movementsDates.at(0)));
+console.log(days1);
+
+console.log(new Date(2037, 10, 19));
+
+// * settimeout
+let ingredients = ['olives', ''];
+
+let pizzaTimer = setTimeout(
+  (data1, data2) => console.log(`here is pizaa with ${data1} and ${data2}`),
+  3000,
+  ...ingredients
+);
+
+if (ingredients.includes('garlic')) clearTimeout(pizzaTimer);
+
+setInterval(() => {
+  let currentDate = new Date();
+
+  let date = currentDate.getDate().toString(10).padStart(2, 0);
+  let month = currentDate.getMonth().toString(10).padStart(2, 0);
+  let year = currentDate.getFullYear();
+  let minutes = currentDate.getMinutes().toString(10).padStart(2, 0);
+  let hour = currentDate.getHours().toString(10).padStart(2, 0);
+  document.querySelector(
+    '.welcome'
+  ).textContent = `${date}/${month}/${year}:${hour}:${minutes}`;
+}, 1000);
+
+// *12.35

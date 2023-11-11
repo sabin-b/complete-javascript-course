@@ -25,13 +25,16 @@ let userChance = 3;
 checkBtn.addEventListener('click', function () {
   console.log(randomNumber);
   let userValue = parseInt(inputBox.value);
-  if (userChance !== 0) {
+  if (userChance > 0) {
     if (userValue > 0) {
       if (userValue === randomNumber) {
         highlightScoretext.textContent = userValue;
         messagePrint('correct Answer 🎉');
         //   score.textContent = userValue;
         body.style.backgroundColor = '#60b347';
+        body.style.transition = '0.5s';
+        highlightScoretext.style.width = '30rem';
+        highlightScoretext.style.transition = '0.5s';
         if (userValue > highScore) {
           highScore = userValue;
           highscoreText.textContent = highScore;
@@ -40,10 +43,12 @@ checkBtn.addEventListener('click', function () {
         messagePrint('Number is high 😜');
         userChance--;
         score.textContent = userChance;
+        console.log(userChance);
       } else {
         messagePrint('Number is to low 😢');
         userChance--;
         score.textContent = userChance;
+        console.log(userChance);
       }
     } else {
       messagePrint('No Number !!!');
@@ -62,4 +67,5 @@ againBtn.addEventListener('click', function () {
   messagePrint('Start guessing...');
   body.style.backgroundColor = '#222';
   highlightScoretext.textContent = '?';
+  score.textContent = 20;
 });

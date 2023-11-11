@@ -27,3 +27,92 @@ const restaurant = {
     },
   },
 };
+
+/*
+ * object destructuring
+ *
+ */
+
+let {
+  name: restaurantName,
+  location: restaurantLocation,
+  starterMenu: starter = [],
+  openingHours: { fri },
+} = restaurant;
+
+console.log(restaurantName, restaurantLocation, starter);
+
+// * mutating variable
+let aa = 10;
+let bb = 20;
+let obj = { aa: 25, bb: 50 };
+({ aa, bb } = obj);
+console.log(aa, bb);
+
+/*
+ * object destructuring end /*
+ *
+ */
+
+/*
+ * array destructuring
+ *
+ */
+let arrayExample1 = ['name1', 'name 2', 25, 50, 100, 60, 5055];
+
+let [, a, , , , , last] = arrayExample1;
+
+console.log(a, last);
+
+// ! destructering from object
+const restaurant2 = {
+  name: 'Classico Italiano',
+  // location: 'Via Angelo Tavanti 23, Firenze, Italy',
+  categories: ['Italian', 'Pizzeria', 'Vegetarian', 'Organic'],
+  starterMenu: ['Focaccia', 'Bruschetta', 'Garlic Bread', 'Caprese Salad'],
+  mainMenu: ['Pizza', 'Pasta', 'Risotto'],
+
+  order: function (starterIndex, lastIndex) {
+    return [this.starterMenu[starterIndex], this.mainMenu[lastIndex]];
+  },
+};
+
+/*
+ * values interchanging
+ *
+ */
+
+let [main, , secondary] = restaurant2.categories;
+
+console.log(`before interchange: ${main}-${secondary}`);
+/*
+ * values interchange
+ *
+ */
+[main, secondary] = [secondary, main];
+console.log(`after interchange: ${main}-${secondary}`);
+
+/*
+ * getting a new array from func return value
+ *
+ */
+
+let [item1, item2] = restaurant2.order(0, 0);
+console.log(item1, item2);
+
+/*
+ * nested array
+ *
+ */
+
+let exampleArray1 = [10, 20, [250, 500, 100, 101]];
+let [e1, e2, [ne1]] = exampleArray1;
+console.log(e1, e2, ne1);
+
+/*
+ * nested array default value
+ *
+ */
+
+let [el1, el2, [nel1, nel2, , nel4 = 55]] = exampleArray1;
+console.log(nel4);
